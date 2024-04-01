@@ -13,6 +13,8 @@ class SchoolModelTest:
 
     @Test
     def addTeacherTest() =
-        var mySchool: School = school().addTeacher("Marco")
-        assertEquals(Optional.Just(TeacherImpl("Marco", Sequence.Nil())), mySchool.teacherByName("Marco"))
+        assertEquals(Optional.Just(TeacherImpl("Marco", Sequence.Nil())), school().addTeacher("Marco").teacherByName("Marco"))
 
+    @Test
+    def addCourseTest() =
+        assertEquals(Optional.Just(CourseImpl("PPS")), school().addCourse("PPS").courseByName("PPS"))

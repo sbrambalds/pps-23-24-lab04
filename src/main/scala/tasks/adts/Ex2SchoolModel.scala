@@ -46,18 +46,28 @@ object SchoolModel:
     extension (school: School)
       def addTeacher(name: String): School = school match
         case SchoolImpl(teachers, courses) => SchoolImpl(Sequence.Cons(TeacherImpl(name, Sequence.Nil()), teachers), courses)
-      def addCourse(name: String): School = ???
+      def addCourse(name: String): School = school match
+        case SchoolImpl(teachers, courses) => SchoolImpl(teachers, Sequence.Cons(CourseImpl(name), courses))
       def teacherByName(name: String): Optional[Teacher] = 
 
         def _teacherByName(l: Sequence[Teacher]): Optional[Teacher] = l match
-          case Sequence.Cons(teacher, t) if teacher.name == name => Optional.Just(teacher)
+          case Sequence.Cons(teacher, _) if teacher.name == name => Optional.Just(teacher)
           case Sequence.Cons(_, t) => _teacherByName(t)
-          case Sequence.Nil() => Optional.Empty()
+          case _ => Optional.Empty()
         
         school match
-          case SchoolImpl(teachers, courses) => _teacherByName(teachers)
+          case SchoolImpl(teachers, _) => _teacherByName(teachers)
 
-      def courseByName(name: String): Optional[Course] = ???
+      def courseByName(name: String): Optional[Course] = 
+
+        def _courseByName(l: Sequence[Course]): Optional[Course] = l match
+          case Sequence.Cons(CourseImpl(n), _) if n == name => Optional.Just(CourseImpl(n))
+          case Sequence.Cons(_, t) => _courseByName(t)
+          case _ => Optional.Empty()
+        
+        school match
+          case SchoolImpl(_, courses) => _courseByName(courses)
+          
       def nameOfTeacher(teacher: Teacher): String = ???
       def nameOfCourse(teacher: Course): String = ???
       def setTeacherToCourse(teacher: Teacher, course: Course): School = ???
