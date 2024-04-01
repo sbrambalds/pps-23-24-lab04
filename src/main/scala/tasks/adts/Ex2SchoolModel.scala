@@ -25,11 +25,11 @@ object SchoolModel:
       def teacherByName(name: String): Optional[Teacher]
       def courseByName(name: String): Optional[Course]
       def nameOfTeacher(teacher: Teacher): String
-      def nameOfCourse(teacher: Course): String
+      def nameOfCourse(course: Course): String
       def setTeacherToCourse(teacher: Teacher, course: Course): School
       def coursesOfATeacher(teacher: Teacher): Sequence[Course]
     
-  object SchoolModelImpl extends SchoolModule:
+  object SchoolModelADT extends SchoolModule:
 
     case class CourseImpl(name: String)
     case class TeacherImpl(name: String, courses: Sequence[Course])
@@ -67,8 +67,13 @@ object SchoolModel:
         
         school match
           case SchoolImpl(_, courses) => _courseByName(courses)
-          
-      def nameOfTeacher(teacher: Teacher): String = ???
-      def nameOfCourse(teacher: Course): String = ???
+
+      def nameOfTeacher(teacher: Teacher): String = teacher match 
+        case TeacherImpl(name, _) => name
+      def nameOfCourse(course: Course): String = course match
+        case CourseImpl(name) => name
+      
       def setTeacherToCourse(teacher: Teacher, course: Course): School = ???
+      
       def coursesOfATeacher(teacher: Teacher): Sequence[Course] = ???
+      
