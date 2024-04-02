@@ -30,3 +30,7 @@ metals.sbt
 .idea
 .idea_modules
 /.worksheet/
+null/bloop/cache/bridge-cache/ch.epfl.scala/org.scala-lang-scala3-sbt-bridge-3.3.1-bin_3.3.1__61.0-1.9.6_20240106T094756.jar
+null/bloop/cache/components/org.scala-lang-scala3-sbt-bridge-3.3.1-bin_3.3.1__61.0/scala3-sbt-bridge-3.3.1.jar
+null/bloop/cache/semanticdb/com.sourcegraph.semanticdb-javac.0.9.9/semanticdb-javac-0.9.9.jar
+null/bloop/cache/semanticdb/org.scalameta.semanticdb-scalac_2.12.18.4.8.15/semanticdb-scalac_2.12.18-4.8.15.jar
