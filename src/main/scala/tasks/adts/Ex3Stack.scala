@@ -26,8 +26,7 @@ object Ex3Stacks:
     def empty[A]: Stack[A] = Sequence.Nil()
 
     extension [A](stack: Stack[A])
-      def push(a: A): Stack[A] = stack match
-        case _ => Sequence.Cons(a, stack)
+      def push(a: A): Stack[A] = Sequence.Cons(a, stack)
       def pop(a: A): Optional[(A, Stack[A])] = stack match
         case Sequence.Nil() => Optional.Empty()
         case Sequence.Cons(h, t) => Optional.Just(h, t)
