@@ -2,6 +2,7 @@ package tasks.adts
 import u03.Sequences.*
 import u03.Optionals.*
 import u02.AlgebraicDataTypes.Person
+import u03.Sequences.Sequence.filter
 
 /*  Exercise 2: 
  *  Implement the below trait, and write a meaningful test.
@@ -19,6 +20,8 @@ object SchoolModel:
     type School
     type Teacher
     type Course
+    def school(teachers: Sequence[Teacher], courses: Sequence[Course]): School
+    def school(): School
     extension (school: School)
       def addTeacher(name: String): School
       def addCourse(name: String): School
@@ -44,36 +47,42 @@ object SchoolModel:
     def school(): School = SchoolImpl(Sequence.Nil(), Sequence.Nil())
 
     extension (school: School)
+
       def addTeacher(name: String): School = school match
         case SchoolImpl(teachers, courses) => SchoolImpl(Sequence.Cons(TeacherImpl(name, Sequence.Nil()), teachers), courses)
+
       def addCourse(name: String): School = school match
         case SchoolImpl(teachers, courses) => SchoolImpl(teachers, Sequence.Cons(CourseImpl(name), courses))
-      def teacherByName(name: String): Optional[Teacher] = 
 
-        def _teacherByName(l: Sequence[Teacher]): Optional[Teacher] = l match
-          case Sequence.Cons(teacher, _) if teacher.name == name => Optional.Just(teacher)
-          case Sequence.Cons(_, t) => _teacherByName(t)
+      def teacherByName(name: String): Optional[Teacher] = school match
+        case SchoolImpl(teachers, courses) => teachers match
+          case Sequence.Cons(h, t) => if nameOfTeacher(h) == name then Optional.Just(h) else SchoolImpl(t, courses).teacherByName(name)
           case _ => Optional.Empty()
-        
-        school match
-          case SchoolImpl(teachers, _) => _teacherByName(teachers)
 
-      def courseByName(name: String): Optional[Course] = 
-
-        def _courseByName(l: Sequence[Course]): Optional[Course] = l match
-          case Sequence.Cons(CourseImpl(n), _) if n == name => Optional.Just(CourseImpl(n))
-          case Sequence.Cons(_, t) => _courseByName(t)
+      def courseByName(name: String): Optional[Course] = school match
+        case SchoolImpl(teachers, courses) => courses match
+          case Sequence.Cons(h, t) => if nameOfCourse(h) == name then Optional.Just(h) else SchoolImpl(teachers, t).courseByName(name)
           case _ => Optional.Empty()
-        
-        school match
-          case SchoolImpl(_, courses) => _courseByName(courses)
 
       def nameOfTeacher(teacher: Teacher): String = teacher match 
         case TeacherImpl(name, _) => name
+
       def nameOfCourse(course: Course): String = course match
         case CourseImpl(name) => name
       
-      def setTeacherToCourse(teacher: Teacher, course: Course): School = ???
+      def setTeacherToCourse(teacher: Teacher, course: Course): School = 
+        require(!Optional.isEmpty(school.teacherByName(nameOfTeacher(teacher))) & !Optional.isEmpty(school.courseByName(school.nameOfCourse(course))))
+        
+        def updateTeachers(l: Sequence[Teacher]): Sequence[Teacher] = teacher match
+          case TeacherImpl(name, courses) => Sequence.Cons(TeacherImpl(name, Sequence.Cons(course, courses)), filter(l)(v => nameOfTeacher(v) != name))
+
+        school match
+          case SchoolImpl(teachers, c) => SchoolImpl(updateTeachers(teachers), c)
+          
+      def coursesOfATeacher(teacher: Teacher): Sequence[Course] = school.teacherByName(nameOfTeacher(teacher)) match
+        case Optional.Just(TeacherImpl(_, courses)) => courses
+        case _ => Sequence.Nil()
+        
       
-      def coursesOfATeacher(teacher: Teacher): Sequence[Course] = ???
+
       
