@@ -71,13 +71,13 @@ object SchoolModel:
         case CourseImpl(name) => name
       
       def setTeacherToCourse(teacher: Teacher, course: Course): School = 
-        require(!Optional.isEmpty(school.teacherByName(nameOfTeacher(teacher))) & !Optional.isEmpty(school.courseByName(school.nameOfCourse(course))))
-        
-        def updateTeachers(l: Sequence[Teacher]): Sequence[Teacher] = teacher match
-          case TeacherImpl(name, courses) => Sequence.Cons(TeacherImpl(name, Sequence.Cons(course, courses)), filter(l)(v => nameOfTeacher(v) != name))
+        require(!Optional.isEmpty(school.teacherByName(nameOfTeacher(teacher))) & !Optional.isEmpty(school.courseByName(nameOfCourse(course))) 
+          & (filter(school.coursesOfATeacher(teacher))(v => nameOfCourse(v) == nameOfCourse(course)) == Sequence.Nil()))
+
+        var updatedTeacher: Teacher = TeacherImpl(nameOfTeacher(teacher), Sequence.Cons(course, coursesOfATeacher(teacher)))
 
         school match
-          case SchoolImpl(teachers, c) => SchoolImpl(updateTeachers(teachers), c)
+          case SchoolImpl(teachers, c) => SchoolImpl(Sequence.Cons(updatedTeacher, filter(teachers)(v => nameOfTeacher(v) != nameOfTeacher(teacher))), c)
           
       def coursesOfATeacher(teacher: Teacher): Sequence[Course] = school.teacherByName(nameOfTeacher(teacher)) match
         case Optional.Just(TeacherImpl(_, courses)) => courses
