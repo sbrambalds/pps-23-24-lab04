@@ -20,26 +20,25 @@ import u04lab.Ex5Traversable.logAll
 
 object Ex5Traversable:
 
-  def log[A](a: A): Unit = println("The next element is: "+a)
+  def log[A](a: A): Unit = println("The next element is: " + a)
 
   trait Traversable[T[_]]:
-    def logAll[A](a: T[A]): Unit
-  
-  def logAll[A, T[A]: Traversable](a: T[A]): Unit = 
-    summon[Traversable[T]].logAll(a)
+    def traverse[A](traversable: T[A])(f: A => Unit): Unit
 
-object TraversableGivenInstances:
-  import Ex5Traversable.*
+  def logAll[A, T[A] : Traversable](a: T[A]): Unit =
+    summon[Traversable[T]].traverse(a)(a => log(a))
 
-  given Traversable[Optional] with
-    def logAll[A](a: Optional[A]): Unit = a match
-      case Optional.Just(v) => log(v)
-      case _ => ()
+  object TraversableGivenInstances:
 
-  given Traversable[Sequence] with
-    def logAll[A](a: Sequence[A]): Unit = a match
-      case Sequence.Cons(h, t) => log(h); logAll(t)
-      case _ => ()
+    given Traversable[Optional] with
+      def traverse[A](a: Optional[A])(f: A => Unit): Unit = a match
+        case Optional.Just(v) => f(v)
+        case _ => ()
+
+    given Traversable[Sequence] with
+      def traverse[A](a: Sequence[A])(f: A => Unit): Unit = a match
+        case Sequence.Cons(h, t) => f(h); traverse(t)(f)
+        case _ => ()
 
 @main def tryTraversable() =
   import Ex5Traversable.*
