@@ -81,13 +81,13 @@ object AllTasks:
 
                 def teacherByName(name: String): Optional[Teacher] = school match
                     case SchoolImpl(teachers, courses) => teachers match
-                    case Sequence.Cons(h, t) => if nameOfTeacher(h) == name then Optional.Just(h) else SchoolImpl(t, courses).teacherByName(name)
-                    case _ => Optional.Empty()
+                        case Sequence.Cons(h, t) => if nameOfTeacher(h) == name then Optional.Just(h) else SchoolImpl(t, courses).teacherByName(name)
+                        case _ => Optional.Empty()
 
                 def courseByName(name: String): Optional[Course] = school match
                     case SchoolImpl(teachers, courses) => courses match
-                    case Sequence.Cons(h, t) => if nameOfCourse(h) == name then Optional.Just(h) else SchoolImpl(teachers, t).courseByName(name)
-                    case _ => Optional.Empty()
+                        case Sequence.Cons(h, t) => if nameOfCourse(h) == name then Optional.Just(h) else SchoolImpl(teachers, t).courseByName(name)
+                        case _ => Optional.Empty()
 
                 def nameOfTeacher(teacher: Teacher): String = teacher match 
                     case TeacherImpl(name, _) => name
@@ -97,12 +97,12 @@ object AllTasks:
                 
                 def setTeacherToCourse(teacher: Teacher, course: Course): School = 
                     require(!Optional.isEmpty(school.teacherByName(nameOfTeacher(teacher))) & !Optional.isEmpty(school.courseByName(nameOfCourse(course))) 
-                    & (filter(school.coursesOfATeacher(teacher))(v => nameOfCourse(v) == nameOfCourse(course)) == Sequence.Nil()))
+                    & (filter(school.coursesOfATeacher(teacher))(nameOfCourse(_) == nameOfCourse(course)) == Sequence.Nil()))
 
                     var updatedTeacher: Teacher = TeacherImpl(nameOfTeacher(teacher), Sequence.Cons(course, coursesOfATeacher(teacher)))
 
-                    school match
-                    case SchoolImpl(teachers, c) => SchoolImpl(Sequence.Cons(updatedTeacher, filter(teachers)(v => nameOfTeacher(v) != nameOfTeacher(teacher))), c)
+                    school match 
+                        case SchoolImpl(teachers, c) => SchoolImpl(Sequence.Cons(updatedTeacher, filter(teachers)(nameOfTeacher(_) != nameOfTeacher(teacher))), c)
                     
                 def coursesOfATeacher(teacher: Teacher): Sequence[Course] = school.teacherByName(nameOfTeacher(teacher)) match
                     case Optional.Just(TeacherImpl(_, courses)) => courses
@@ -146,8 +146,8 @@ object AllTasks:
         def sumAll[A: Summable](seq: Sequence[A]): A = 
             val summable = summon[Summable[A]]
             seq match
-            case Cons(h, t) => summable.sum(h, sumAll(t))
-            case _ => summable.zero
+                case Cons(h, t) => summable.sum(h, sumAll(t))
+                case _ => summable.zero
             
 
         given Summable[Int] with
@@ -170,22 +170,22 @@ object AllTasks:
         def log[A](a: A): Unit = println("The next element is: "+a)
 
         trait Traversable[T[_]]:
-            def logAll[A](a: T[A]): Unit
+            def traverse[A](traversable: T[A])(f:A => Unit): Unit
         
         def logAll[A, T[A]: Traversable](a: T[A]): Unit = 
-            summon[Traversable[T]].logAll(a)
+            summon[Traversable[T]].traverse(a)(a => log(a))
 
         object TraversableGivenInstances:
 
             given Traversable[Optional] with
-                def logAll[A](a: Optional[A]): Unit = a match
-                case Optional.Just(v) => log(v)
-                case _ => ()
+                def traverse[A](a: Optional[A])(f: A => Unit): Unit = a match
+                    case Optional.Just(v) => f(v)
+                    case _ => ()
 
             given Traversable[Sequence] with
-                def logAll[A](a: Sequence[A]): Unit = a match
-                case Sequence.Cons(h, t) => log(h); logAll(t)
-                case _ => ()
+                def traverse[A](a: Sequence[A])(f: A => Unit): Unit = a match
+                    case Sequence.Cons(h, t) => f(h); traverse(t)(f)
+                    case _ => ()
 
     //Task 6:
     object Ex6TryModel:
@@ -199,7 +199,7 @@ object AllTasks:
 
         def success[A](value: A): Try[A] = TryImpl.Success(value)
         def failure[A](exception: Throwable): Try[A] = TryImpl.Failure(exception)
-        def exec[A](expression: => A): Try[A] = try success(expression) catch failure(_)
+        def exec[A](expression: => A): Try[A] = try success(expression) catch case e: Exception => failure(e)
 
         extension [A](m: Try[A]) 
             def getOrElse[B >: A](other: B): B = m match

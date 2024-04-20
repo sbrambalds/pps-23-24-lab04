@@ -23,7 +23,7 @@ object Ex6TryModel:
 
   def success[A](value: A): Try[A] = TryImpl.Success(value)
   def failure[A](exception: Throwable): Try[A] = TryImpl.Failure(exception)
-  def exec[A](expression: => A): Try[A] = try success(expression) catch failure(_)
+  def exec[A](expression: => A): Try[A] = try success(expression) catch case e: Exception => failure(e)
 
   extension [A](m: Try[A]) 
     def getOrElse[B >: A](other: B): B = m match
